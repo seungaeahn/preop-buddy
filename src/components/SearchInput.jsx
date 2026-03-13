@@ -11,11 +11,12 @@ export default function SearchInput({ value, onChange, onSearch, loading }) {
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [])
 
-  // 검색어 필터 메모이제이션
+  // 검색어 필터 메모이제이션 (토큰 분리 부분 매칭)
   const suggestions = useMemo(() => {
     const q = value.trim()
     if (!q) return SURGERY_LIST.slice(0, 6)
-    return SURGERY_LIST.filter(s => s.includes(q))
+    const tokens = q.split(/\s+/).filter(Boolean)
+    return SURGERY_LIST.filter(s => tokens.every(token => s.includes(token)))
   }, [value])
 
   function handleBlur() {

@@ -5,11 +5,36 @@ import Buddy from './components/Buddy'
 import { fetchSurgeryInfo } from './services/groqApi'
 import { cleanKoreanOnly } from './services/cleanResponse'
 
+const FONT_SIZES = ['normal', 'large', 'xlarge']
+
+function getSavedFontSize() {
+  try { return localStorage.getItem('fontSize') || 'normal' } catch { return 'normal' }
+}
+
+function applyFontSize(size) {
+  const html = document.documentElement
+  html.classList.remove('font-large', 'font-xlarge')
+  if (size === 'large')  html.classList.add('font-large')
+  if (size === 'xlarge') html.classList.add('font-xlarge')
+}
+
 export default function App() {
   const [surgeryName, setSurgeryName] = useState('')
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [result, setResult]           = useState(null)
+  const [loading, setLoading]         = useState(false)
+  const [error, setError]             = useState(null)
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = getSavedFontSize()
+    applyFontSize(saved)
+    return saved
+  })
+
+  function cycleFontSize() {
+    const next = FONT_SIZES[(FONT_SIZES.indexOf(fontSize) + 1) % FONT_SIZES.length]
+    setFontSize(next)
+    applyFontSize(next)
+    try { localStorage.setItem('fontSize', next) } catch {}
+  }
 
   async function handleSearch() {
     if (!surgeryName.trim()) return
@@ -29,23 +54,35 @@ export default function App() {
 
   return (
     <div className="h-screen overflow-hidden flex flex-col" style={{ backgroundColor: '#EAF3DE' }}>
-
       {/* 헤더 */}
       <header style={{ backgroundColor: '#fff', borderBottom: '1px solid #D4E8BF' }}
-        className="sticky top-0 z-20 shadow-sm">
+        className="sticky top-0 z-20 shadow-sm no-print">
         <div className="max-w-2xl mx-auto px-5 py-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-2xl flex items-center justify-center text-white text-base font-bold shadow-sm"
             style={{ backgroundColor: '#3B6D11' }}>+</div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-base font-semibold leading-none" style={{ color: '#2D3A1F' }}>PreOp Buddy</h1>
             <p className="text-xs mt-0.5" style={{ color: '#639922' }}>수술 전 AI 안내 서비스</p>
           </div>
+          {/* 글자 크기 버튼 */}
+          <button
+            onClick={cycleFontSize}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl transition-all"
+            style={{ backgroundColor: '#F4F9EF', border: '1.5px solid #C4DBA0' }}
+            title="글자 크기 변경"
+          >
+            <span style={{ fontSize: '0.72rem', color: '#639922', fontWeight: 700 }}>가</span>
+            <span style={{ fontSize: '1rem',    color: '#3B6D11', fontWeight: 700 }}>가</span>
+            <span style={{ fontSize: '0.65rem', color: '#8FA870' }}>
+              {fontSize === 'normal' ? '기본' : fontSize === 'large' ? '크게' : '매우 크게'}
+            </span>
+          </button>
         </div>
       </header>
 
       {/* 히어로 (결과 없을 때만) */}
       {!result && !loading && (
-        <section className="px-5 pt-8 pb-2" style={{ backgroundColor: '#EAF3DE' }}>
+        <section className="px-5 pt-8 pb-2 no-print" style={{ backgroundColor: '#EAF3DE' }}>
           <div className="max-w-2xl mx-auto flex items-end justify-between gap-4">
             <div className="pb-4">
               <p className="text-sm font-semibold mb-2" style={{ color: '#639922' }}>안녕하세요 👋</p>
@@ -66,14 +103,14 @@ export default function App() {
         <div className="max-w-2xl mx-auto space-y-5">
 
           {/* 검색 카드 */}
-          <div className="rounded-3xl p-6 shadow-sm"
+          <div className="rounded-3xl p-6 shadow-sm no-print"
             style={{ backgroundColor: '#fff', border: '1px solid #D4E8BF' }}>
             <SearchInput value={surgeryName} onChange={setSurgeryName} onSearch={handleSearch} loading={loading} />
           </div>
 
           {/* 로딩 */}
           {loading && (
-            <div className="rounded-3xl p-10 flex flex-col items-center gap-4 shadow-sm"
+            <div className="rounded-3xl p-10 flex flex-col items-center gap-4 shadow-sm no-print"
               style={{ backgroundColor: '#fff', border: '1px solid #D4E8BF' }}>
               <Buddy size={110} className="animate-bounce drop-shadow-md" />
               <div className="text-center">
@@ -85,7 +122,7 @@ export default function App() {
 
           {/* 에러 */}
           {error && (
-            <div className="rounded-3xl p-5 flex items-start gap-3"
+            <div className="rounded-3xl p-5 flex items-start gap-3 no-print"
               style={{ backgroundColor: '#FAEEDA', border: '1px solid #F5D49A' }}>
               <span className="text-xl flex-shrink-0">😅</span>
               <div>
@@ -99,7 +136,11 @@ export default function App() {
           )}
 
           {/* 결과 */}
-          {result && !loading && <ResultCard result={result} />}
+          {result && !loading && (
+            <div key={result.surgeryName} className="animate-fade-slide-up">
+              <ResultCard result={result} />
+            </div>
+          )}
         </div>
       </main>
     </div>

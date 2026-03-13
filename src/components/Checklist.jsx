@@ -1,4 +1,17 @@
-import { useState } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
+
+const CONFETTI_COLORS = ['#639922', '#EF9F27', '#A8D878', '#F5D49A', '#3B6D11', '#FAEEDA']
+
+function generateConfetti(count = 24) {
+  return Array.from({ length: count }, (_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    size: 6 + Math.random() * 6,
+    delay: `${Math.random() * 0.5}s`,
+    duration: `${0.8 + Math.random() * 0.6}s`,
+  }))
+}
 
 const CATEGORY_STYLES = {
   '식이':  { bg: '#FFF7E6', color: '#B86E00' },
@@ -9,6 +22,9 @@ const CATEGORY_STYLES = {
 
 export default function Checklist({ items }) {
   const [checked, setChecked] = useState({})
+  const [showConfetti, setShowConfetti] = useState(false)
+  const prevDoneRef = useRef(0)
+  const confetti = useMemo(() => generateConfetti(24), [])
 
   function toggle(i) {
     setChecked(prev => ({ ...prev, [i]: !prev[i] }))
@@ -16,9 +32,38 @@ export default function Checklist({ items }) {
 
   const doneCount = Object.values(checked).filter(Boolean).length
   const progress = items.length > 0 ? Math.round((doneCount / items.length) * 100) : 0
+  const allDone = doneCount === items.length && items.length > 0
+
+  useEffect(() => {
+    if (allDone && prevDoneRef.current < items.length) {
+      setShowConfetti(true)
+      const t = setTimeout(() => setShowConfetti(false), 1400)
+      return () => clearTimeout(t)
+    }
+    prevDoneRef.current = doneCount
+  }, [allDone, doneCount, items.length])
 
   return (
-    <div>
+    <div className="relative overflow-hidden">
+      {/* 컨페티 */}
+      {showConfetti && confetti.map(p => (
+        <div
+          key={p.id}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: p.left,
+            width: p.size,
+            height: p.size,
+            borderRadius: p.id % 3 === 0 ? '50%' : 2,
+            backgroundColor: p.color,
+            animation: `confettiFall ${p.duration} ${p.delay} ease-in forwards`,
+            pointerEvents: 'none',
+            zIndex: 10,
+          }}
+        />
+      ))}
+
       {/* 진행률 */}
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-semibold" style={{ color: '#3B6D11' }}>
