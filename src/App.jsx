@@ -2,6 +2,7 @@ import { useState } from 'react'
 import SearchInput from './components/SearchInput'
 import ResultCard from './components/ResultCard'
 import Buddy from './components/Buddy'
+import { VasBefore } from './components/ValidationPanel'
 import { fetchSurgeryInfo } from './services/groqApi'
 import { cleanKoreanOnly } from './services/cleanResponse'
 
@@ -23,6 +24,8 @@ export default function App() {
   const [result, setResult]           = useState(null)
   const [loading, setLoading]         = useState(false)
   const [error, setError]             = useState(null)
+  // VAS 사전 불안도 (검색 전 측정)
+  const [vasBefore, setVasBefore]     = useState(null)
   const [fontSize, setFontSize] = useState(() => {
     const saved = getSavedFontSize()
     applyFontSize(saved)
@@ -83,18 +86,22 @@ export default function App() {
       {/* 히어로 (결과 없을 때만) */}
       {!result && !loading && (
         <section className="px-5 pt-8 pb-2 no-print" style={{ backgroundColor: '#EAF3DE' }}>
-          <div className="max-w-2xl mx-auto flex items-end justify-between gap-4">
-            <div className="pb-4">
-              <p className="text-sm font-semibold mb-2" style={{ color: '#639922' }}>안녕하세요 👋</p>
-              <h2 className="text-2xl font-medium leading-snug mb-3" style={{ color: '#2D3A1F' }}>
-                수술, 걱정 마세요<br />제가 도와드릴게요
-              </h2>
-              <p className="text-base" style={{ color: '#5A6E44', lineHeight: 1.8 }}>
-                수술명을 입력하면 준비사항부터<br />
-                회복까지 알기 쉽게 알려드려요
-              </p>
+          <div className="max-w-2xl mx-auto">
+            <div className="flex items-end justify-between gap-4 mb-5">
+              <div className="pb-4">
+                <p className="text-sm font-semibold mb-2" style={{ color: '#639922' }}>안녕하세요 👋</p>
+                <h2 className="text-2xl font-medium leading-snug mb-3" style={{ color: '#2D3A1F' }}>
+                  수술, 걱정 마세요<br />제가 도와드릴게요
+                </h2>
+                <p className="text-base" style={{ color: '#5A6E44', lineHeight: 1.8 }}>
+                  수술명을 입력하면 준비사항부터<br />
+                  회복까지 알기 쉽게 알려드려요
+                </p>
+              </div>
+              <Buddy size={160} className="flex-shrink-0 drop-shadow-lg" />
             </div>
-            <Buddy size={180} className="flex-shrink-0 drop-shadow-lg" />
+            {/* 사전 불안도 측정 */}
+            <VasBefore value={vasBefore} onChange={setVasBefore} />
           </div>
         </section>
       )}
@@ -138,7 +145,7 @@ export default function App() {
           {/* 결과 */}
           {result && !loading && (
             <div key={result.surgeryName} className="animate-fade-slide-up">
-              <ResultCard result={result} />
+              <ResultCard result={result} vasBefore={vasBefore} />
             </div>
           )}
         </div>

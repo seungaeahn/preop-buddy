@@ -4,14 +4,16 @@ import { BuddyNarrator } from './Buddy'
 import OverviewIllustration from './OverviewIllustration'
 import MedicalText from './MedicalText'
 import DdayPlanner from './DdayPlanner'
+import { VasAfter, QuizPanel } from './ValidationPanel'
 
-export default function ResultCard({ result }) {
+export default function ResultCard({ result, vasBefore }) {
   const [currentIdx, setCurrentIdx]     = useState(0)
   const [animKey, setAnimKey]           = useState(0)
   const [direction, setDirection]       = useState('next')
   const [surgeryDate, setSurgeryDate]   = useState(null)
+  const [vasAfter, setVasAfter]         = useState(null)
 
-  const { surgeryName, overview, process, preparation, preparationTimeline, recovery, faq, disclaimer } = result
+  const { surgeryName, overview, process, preparation, preparationTimeline, recovery, faq, quiz, disclaimer } = result
 
   const glossary = useMemo(() =>
     Array.isArray(result.glossary)
@@ -42,6 +44,9 @@ export default function ResultCard({ result }) {
     if (glossary?.length > 0)
       s.push({ id: 'glossary', icon: '📖', label: '용어 사전', accent: 'green', expression: 'smile',
         message: '어려운 의학 용어를 쉽게 설명해 드릴게요!' })
+    // 검증 섹션: VAS after + 퀴즈 (항상 마지막)
+    s.push({ id: 'validation', icon: '📊', label: '이해도 확인', accent: 'amber', expression: 'cheer',
+      message: '정보를 다 확인하셨나요? 이해도 퀴즈와 불안도 변화를 확인해보세요! 📊' })
     return s
   }, [surgeryName, process, preparationTimeline, preparation, recovery, faq, glossary])
 
@@ -138,6 +143,27 @@ export default function ResultCard({ result }) {
               </li>
             ))}
           </ul>
+        )
+      case 'validation':
+        return (
+          <div className="space-y-6">
+            {/* VAS 사후 불안도 */}
+            <div>
+              <p className="text-sm font-semibold mb-3" style={{ color: '#8B5E0A' }}>
+                📉 불안도 변화 측정
+              </p>
+              <VasAfter before={vasBefore} value={vasAfter} onChange={setVasAfter} />
+            </div>
+            {/* 이해도 퀴즈 */}
+            {quiz?.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold mb-3" style={{ color: '#3B6D11' }}>
+                  🧠 수술 이해도 퀴즈
+                </p>
+                <QuizPanel quiz={quiz} />
+              </div>
+            )}
+          </div>
         )
       default:
         return null
