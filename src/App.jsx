@@ -1,39 +1,24 @@
 import { useState } from 'react'
 import SearchInput from './components/SearchInput'
-import DifficultySelector from './components/DifficultySelector'
 import ResultCard from './components/ResultCard'
-import { fetchSurgeryInfo } from './services/claudeApi'
-
-const DEFAULT_DIFFICULTY = 'easy'
+import Buddy from './components/Buddy'
+import { fetchSurgeryInfo } from './services/groqApi'
+import { cleanKoreanOnly } from './services/cleanResponse'
 
 export default function App() {
   const [surgeryName, setSurgeryName] = useState('')
-  const [difficulty, setDifficulty] = useState(DEFAULT_DIFFICULTY)
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   async function handleSearch() {
     if (!surgeryName.trim()) return
-
     setLoading(true)
     setError(null)
     setResult(null)
-
-    let rawText = ''
-
     try {
-      await fetchSurgeryInfo(surgeryName, difficulty, (chunk) => {
-        rawText += chunk
-      })
-
-      const parsed = JSON.parse(rawText)
-
-      if (parsed.error) {
-        setError(parsed.error)
-      } else {
-        setResult(parsed)
-      }
+      const parsed = cleanKoreanOnly(await fetchSurgeryInfo(surgeryName))
+      setResult(parsed)
     } catch (err) {
       console.error(err)
       setError(err.message || '정보를 불러오지 못했습니다. 다시 시도해주세요.')
@@ -42,50 +27,80 @@ export default function App() {
     }
   }
 
-  function handleDifficultyChange(newDifficulty) {
-    setDifficulty(newDifficulty)
-    if (result) handleSearch()
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-4 py-6">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-2xl font-bold text-gray-900">🏥 PreOp Buddy</h1>
-          <p className="mt-1 text-gray-500 text-base">수술이 무섭지 않도록, AI가 미리 알려드립니다</p>
+    <div className="h-screen overflow-hidden flex flex-col" style={{ backgroundColor: '#EAF3DE' }}>
+
+      {/* 헤더 */}
+      <header style={{ backgroundColor: '#fff', borderBottom: '1px solid #D4E8BF' }}
+        className="sticky top-0 z-20 shadow-sm">
+        <div className="max-w-2xl mx-auto px-5 py-4 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-2xl flex items-center justify-center text-white text-base font-bold shadow-sm"
+            style={{ backgroundColor: '#3B6D11' }}>+</div>
+          <div>
+            <h1 className="text-base font-semibold leading-none" style={{ color: '#2D3A1F' }}>PreOp Buddy</h1>
+            <p className="text-xs mt-0.5" style={{ color: '#639922' }}>수술 전 AI 안내 서비스</p>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
-          <SearchInput
-            value={surgeryName}
-            onChange={setSurgeryName}
-            onSearch={handleSearch}
-            loading={loading}
-          />
-          <DifficultySelector value={difficulty} onChange={handleDifficultyChange} />
+      {/* 히어로 (결과 없을 때만) */}
+      {!result && !loading && (
+        <section className="px-5 pt-8 pb-2" style={{ backgroundColor: '#EAF3DE' }}>
+          <div className="max-w-2xl mx-auto flex items-end justify-between gap-4">
+            <div className="pb-4">
+              <p className="text-sm font-semibold mb-2" style={{ color: '#639922' }}>안녕하세요 👋</p>
+              <h2 className="text-2xl font-medium leading-snug mb-3" style={{ color: '#2D3A1F' }}>
+                수술, 걱정 마세요<br />제가 도와드릴게요
+              </h2>
+              <p className="text-base" style={{ color: '#5A6E44', lineHeight: 1.8 }}>
+                수술명을 입력하면 준비사항부터<br />
+                회복까지 알기 쉽게 알려드려요
+              </p>
+            </div>
+            <Buddy size={180} className="flex-shrink-0 drop-shadow-lg" />
+          </div>
+        </section>
+      )}
+
+      <main className="flex-1 overflow-y-scroll w-full px-5 py-6">
+        <div className="max-w-2xl mx-auto space-y-5">
+
+          {/* 검색 카드 */}
+          <div className="rounded-3xl p-6 shadow-sm"
+            style={{ backgroundColor: '#fff', border: '1px solid #D4E8BF' }}>
+            <SearchInput value={surgeryName} onChange={setSurgeryName} onSearch={handleSearch} loading={loading} />
+          </div>
+
+          {/* 로딩 */}
+          {loading && (
+            <div className="rounded-3xl p-10 flex flex-col items-center gap-4 shadow-sm"
+              style={{ backgroundColor: '#fff', border: '1px solid #D4E8BF' }}>
+              <Buddy size={110} className="animate-bounce drop-shadow-md" />
+              <div className="text-center">
+                <p className="font-medium text-base" style={{ color: '#2D3A1F' }}>열심히 찾아보고 있어요!</p>
+                <p className="text-sm mt-1" style={{ color: '#8FA870' }}>잠깐만 기다려 주세요...</p>
+              </div>
+            </div>
+          )}
+
+          {/* 에러 */}
+          {error && (
+            <div className="rounded-3xl p-5 flex items-start gap-3"
+              style={{ backgroundColor: '#FAEEDA', border: '1px solid #F5D49A' }}>
+              <span className="text-xl flex-shrink-0">😅</span>
+              <div>
+                <p className="text-base font-medium" style={{ color: '#8B5E0A' }}>{error}</p>
+                <button onClick={handleSearch}
+                  className="mt-2 text-sm underline" style={{ color: '#EF9F27' }}>
+                  다시 시도
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 결과 */}
+          {result && !loading && <ResultCard result={result} />}
         </div>
-
-        {loading && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
-            <p className="text-gray-500 text-base animate-pulse">AI가 수술 정보를 생성하고 있습니다...</p>
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-base">
-            {error}
-            <button
-              onClick={handleSearch}
-              className="ml-3 underline text-red-600 hover:text-red-800"
-            >
-              다시 시도
-            </button>
-          </div>
-        )}
-
-        {result && !loading && <ResultCard result={result} />}
       </main>
     </div>
   )

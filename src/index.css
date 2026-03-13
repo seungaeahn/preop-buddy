@@ -1,3 +1,22 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@layer base {
+  html, body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.8;
+    background-color: #EAF3DE;
+    color: #2D3A1F;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  p, li, span {
+    font-size: 16px;
+  }
+}
