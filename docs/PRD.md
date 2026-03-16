@@ -189,7 +189,7 @@
 | 프론트엔드 | React | 18 | 컴포넌트 재사용, 빠른 개발 |
 | 빌드 도구 | Vite | 6 | 빠른 HMR, 간단한 설정 |
 | 스타일링 | Tailwind CSS | 4 | 빠른 UI 구현, rem 기반 폰트 스케일링 |
-| AI | Groq API (llama-3.3-70b-versatile) | - | 빠른 응답 속도, JSON mode, 무료 티어 |
+| AI | Claude API (claude-sonnet-4-6) | - | 고품질 의료 정보 생성, JSON 출력 안정성 |
 | 배포 | Vercel | - | Git push → 자동 배포, 무료 |
 
 ### 아키텍처 다이어그램
@@ -208,16 +208,16 @@
   └── Buddy              ← 캐릭터 + 말풍선 내레이터
        │
        ▼
-[groqApi.js]  ← JSON mode, temperature 0.3, max_tokens 4000
+[claudeApi.js]  ← temperature 0.3, max_tokens 4000
   └── surgeryPrompt.js  ← 한국어 전용 프롬프트 + 스키마 강제
        │
        ▼
-[Groq API — llama-3.3-70b-versatile]
+[Claude API — claude-sonnet-4-6]
   └── JSON 응답 (surgeryName, overview, process, preparationTimeline,
                   preparation, recovery, faq, glossary, disclaimer)
 ```
 
-백엔드 서버 없이 프론트엔드에서 Groq API를 직접 호출하는 단순한 구조. 해커톤 기간 내 빠른 구현에 최적화.
+백엔드 서버 없이 프론트엔드에서 Claude API를 직접 호출하는 단순한 구조. 해커톤 기간 내 빠른 구현에 최적화.
 
 ---
 

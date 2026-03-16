@@ -31,7 +31,7 @@
 | # | 작업 | 상태 | 커밋 |
 |---|---|---|---|
 | 1-1 | Vite + React + Tailwind 프로젝트 초기 설정 | ✅ 완료 | `e66fff4` |
-| 1-2 | Groq API 연동 (llama-3.3-70b-versatile, JSON mode) | ✅ 완료 | `356d6de` |
+| 1-2 | Claude API 연동 (claude-sonnet-4-6) | ✅ 완료 | `356d6de` |
 | 1-3 | 프롬프트 설계 (JSON 스키마 강제, 한국어 전용) | ✅ 완료 | `356d6de` |
 | 1-4 | `SearchInput` 컴포넌트 (입력 + 토큰 기반 자동완성) | ✅ 완료 | `356d6de` |
 | 1-5 | `ResultCard` 컴포넌트 (5개 섹션 렌더링) | ✅ 완료 | `356d6de` |

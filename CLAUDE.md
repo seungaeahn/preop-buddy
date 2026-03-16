@@ -12,7 +12,7 @@
 |---|---|---|
 | **기능 구현자** | 요청된 컴포넌트/기능을 React + Tailwind로 구현 | 전체 |
 | **리팩터링 파트너** | 컴포넌트 크기 최적화, 중복 제거 | 요청 시 |
-| **프롬프트 엔지니어** | Groq API 프롬프트 품질 개선 | surgeryPrompt.js |
+| **프롬프트 엔지니어** | Claude API 프롬프트 품질 개선 | surgeryPrompt.js |
 | **문서 작성자** | PRD, ROADMAP, VALIDATION 문서 최신화 | docs/ |
 | **품질 검증자** | 빌드 확인, 접근성 체크, 한국어 출력 품질 검증 | 전체 |
 
@@ -41,9 +41,9 @@
 
 ### 스택
 - **프론트엔드:** React 18 + Vite + Tailwind CSS v4
-- **AI:** Groq API (llama-3.3-70b-versatile, JSON mode, temperature 0.3)
+- **AI:** Claude API (claude-sonnet-4-6, temperature 0.3)
 - **배포:** Vercel (https://preop-buddy.vercel.app)
-- **백엔드:** 없음 (프론트엔드에서 Groq API 직접 호출)
+- **백엔드:** 없음 (프론트엔드에서 Claude API 직접 호출)
 
 ### 핵심 데이터 흐름
 ```

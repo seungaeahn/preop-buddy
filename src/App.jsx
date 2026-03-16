@@ -3,7 +3,7 @@ import SearchInput from './components/SearchInput'
 import ResultCard from './components/ResultCard'
 import Buddy from './components/Buddy'
 import { VasBefore } from './components/ValidationPanel'
-import { fetchSurgeryInfo } from './services/groqApi'
+import { fetchSurgeryInfo } from './services/claudeApi'
 import { cleanKoreanOnly } from './services/cleanResponse'
 
 const FONT_SIZES = ['normal', 'large', 'xlarge']

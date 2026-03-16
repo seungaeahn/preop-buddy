@@ -1,25 +1,26 @@
 import { buildSystemPrompt, buildUserPrompt } from '../prompts/surgeryPrompt'
 
-const API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const MODEL = 'llama-3.3-70b-versatile'
+const API_URL = 'https://api.anthropic.com/v1/messages'
+const MODEL = 'claude-sonnet-4-6'
 
 export async function fetchSurgeryInfo(surgeryName) {
-  const apiKey = import.meta.env.VITE_GROQ_API_KEY
+  const apiKey = import.meta.env.VITE_CLAUDE_API_KEY
   if (!apiKey) throw new Error('API 키가 설정되지 않았습니다. .env 파일을 확인해주세요.')
 
   const response = await fetch(API_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
       model: MODEL,
       temperature: 0.3,
       max_tokens: 4000,
-      response_format: { type: 'json_object' },
+      system: buildSystemPrompt(),
       messages: [
-        { role: 'system', content: buildSystemPrompt() },
         { role: 'user', content: buildUserPrompt(surgeryName) },
       ],
     }),
@@ -31,7 +32,7 @@ export async function fetchSurgeryInfo(surgeryName) {
   }
 
   const data = await response.json()
-  const text = data.choices?.[0]?.message?.content
+  const text = data.content?.[0]?.text
 
   if (!text) throw new Error('응답 내용이 비어 있습니다. 다시 시도해주세요.')
 

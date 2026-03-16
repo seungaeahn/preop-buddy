@@ -44,7 +44,7 @@ PreOp Buddy의 핵심은 **프롬프트 엔지니어링**에 있습니다.
 | **한국어 전용 규칙** | 나쁜 예/좋은 예 명시 + JS 후처리(Unicode 필터) | 한자·영문 혼입 차단 이중 방어 |
 | **temperature 0.3** | 창의성 억제, 의학 정보 일관성 우선 | 매 요청 동일한 구조·품질 유지 |
 | **퀴즈 자동 생성** | AI가 본문 기반 3지선다 문항 자동 설계 | 별도 문항 DB 없이 수술별 검증 가능 |
-| **모델 선택 (llama-3.3-70b)** | Groq 인프라로 2-3초 응답 | GPT-4 대비 10배 빠른 속도, 무료 |
+| **모델 선택 (claude-sonnet-4-6)** | Anthropic Claude API 호출 | 고품질 의료 정보 생성 |
 
 ---
 
@@ -86,7 +86,7 @@ PreOp Buddy의 핵심은 **프롬프트 엔지니어링**에 있습니다.
 |---|---|---|
 | 프론트엔드 | React 18 + Vite | 컴포넌트 재사용, 빠른 HMR |
 | 스타일링 | Tailwind CSS v4 | 빠른 UI 구현, rem 기반 폰트 스케일링 |
-| AI | Groq API (llama-3.3-70b-versatile) | 빠른 응답 속도, JSON mode 지원, 무료 티어 |
+| AI | Claude API (claude-sonnet-4-6) | 고품질 의료 정보 생성, JSON 출력 안정성 |
 | 배포 | Vercel | Git push → 자동 배포 |
 | 상태관리 | React useState / localStorage | 별도 백엔드 불필요 |
 
@@ -106,14 +106,14 @@ PreOp Buddy의 핵심은 **프롬프트 엔지니어링**에 있습니다.
   └── Buddy            ← 캐릭터 + 말풍선 내레이터
        │
        ▼
-[groqApi.js]  ← JSON mode, temperature 0.3
+[claudeApi.js]  ← temperature 0.3
   └── surgeryPrompt.js ← 한국어 전용 프롬프트
        │
        ▼
-[Groq API — llama-3.3-70b-versatile]
+[Claude API — claude-sonnet-4-6]
 ```
 
-백엔드 서버 없이 프론트엔드에서 Groq API를 직접 호출하는 단순한 구조.
+백엔드 서버 없이 프론트엔드에서 Claude API를 직접 호출하는 단순한 구조.
 
 ---
 
@@ -129,7 +129,7 @@ npm install
 
 # 3. 환경 변수 설정
 cp .env.example .env
-# .env 파일에 VITE_GROQ_API_KEY=your_api_key 입력
+# .env 파일에 VITE_CLAUDE_API_KEY=your_api_key 입력
 
 # 4. 개발 서버 실행
 npm run dev
@@ -161,7 +161,7 @@ preop-buddy/
 │   │   ├── MedicalText.jsx          # 인라인 의학 용어 툴팁
 │   │   └── DdayPlanner.jsx          # D-day 카운트다운 + 타임라인
 │   ├── services/
-│   │   ├── groqApi.js               # Groq API 호출
+│   │   ├── claudeApi.js             # Claude API 호출
 │   │   └── cleanResponse.js        # 한국어 전용 후처리
 │   ├── prompts/
 │   │   └── surgeryPrompt.js         # AI 프롬프트 템플릿
