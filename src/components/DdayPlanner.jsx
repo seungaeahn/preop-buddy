@@ -140,15 +140,26 @@ export default function DdayPlanner({ timeline, surgeryDate, onDateChange }) {
                     {isPast && <span className="ml-1.5 text-xs font-normal" style={{ color: '#bbb' }}>완료</span>}
                   </span>
                 </div>
-                <ul className="space-y-1.5 pl-1">
-                  {item.tasks.map((task, ti) => (
-                    <li key={ti} className="flex items-start gap-2 text-sm"
-                      style={{ color: isPast ? '#aaa' : '#3D4D2A', lineHeight: 1.7 }}>
-                      <span className="mt-2 w-1 h-1 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: isPast ? '#ccc' : c.dot }} />
-                      {task}
-                    </li>
-                  ))}
+                <ul className="space-y-2 pl-1">
+                  {item.tasks.map((task, ti) => {
+                    const [main, reason] = task.split(/\s*—\s*/)
+                    return (
+                      <li key={ti} className="flex items-start gap-2 text-sm">
+                        <span className="mt-[7px] w-1.5 h-1.5 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: isPast ? '#ccc' : c.dot }} />
+                        <span>
+                          <span style={{ color: isPast ? '#aaa' : '#2D3A1F', fontWeight: 500, lineHeight: 1.7 }}>
+                            {main}
+                          </span>
+                          {reason && (
+                            <span className="block text-xs mt-0.5" style={{ color: isPast ? '#bbb' : '#7A9A5A', lineHeight: 1.6 }}>
+                              {reason}
+                            </span>
+                          )}
+                        </span>
+                      </li>
+                    )
+                  })}
                 </ul>
               </div>
             )
